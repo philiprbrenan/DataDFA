@@ -17,12 +17,14 @@ jobs:
         sudo apt update
         sudo apt -y install build-essential tree
 
-        - name: InstallDataNFA
+    - name: InstallDataNFA
       run: |
         sudo cpan install Data::NFA
+
     - name: InstallDataTableText
       run: |
         sudo cpan install Data::Table::Text
+
 
 
     - name: Test
