@@ -15,6 +15,11 @@ my $b = Module::Build->new
     'Test::More'       =>0,
    },
   configure_requires => {'Module::Build' => 0.4224},
+  meta_merge => {
+    resources => {
+      repository => 'https://github.com/philiprbrenan/DataDFA',
+    },
+  },
   create_readme =>  0,
   perl          => '5.26.0',
  );
