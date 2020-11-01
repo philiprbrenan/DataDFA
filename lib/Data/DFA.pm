@@ -5,7 +5,7 @@
 #-------------------------------------------------------------------------------
 # podDocumentation
 package Data::DFA;
-our $VERSION = 20201030;
+our $VERSION = 20201031;
 require v5.26;
 use warnings FATAL => qw(all);
 use strict;
@@ -212,10 +212,10 @@ sub univalent($)                                                                
   my @multiple; my %single;                                                     # Symbols with multiple targets, single targets
   for my $symbol(sort keys %symbols)                                            # Symbols
    {my @states = sort keys $symbols{$symbol}->%*;                               # States
-    if (@states == 1)                                                           # Univalent
+    if (@states == 1)                                                           # Single target
      {($single{$symbol}) = @states;                                             # Mapping
      }
-    else                                                                        # Multivalent
+    else                                                                        # Multiple targets
      {push @multiple, $symbol
      }
    }
@@ -933,30 +933,30 @@ B<Example:>
       "e"
      );
     is_deeply ['a'..'e'], [$dfa->symbols];                                        # List symbols
-  
+
     my $dfa = fromExpr                                                            # Construct DFA
-  
+
      (element("a"),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
-  
+
       oneOrMore(choice(element("b"), element("c"))),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
-  
+
       optional(element("d")),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
-  
+
       element("e")  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
      );
     my $parser = $dfa->parser;                                                    # New parser
-  
+
     eval { $parser->accept($_) } for qw(a b a);                                   # Try to parse a b a
-  
+
     is_deeply [$parser->next],     [qw(b c d e)];                                 # Next acceptable symbol
     is_deeply  $parser->processed, [qw(a b)];                                     # Symbols processed
-  
+
     ok !$parser->final;                                                           # Not in a final state
-  
+
     ok $dfa->dumpAsJson eq <<END, q(dumpAsJson);                                  # Dump as json
   {
      "finalStates" : {
@@ -986,7 +986,7 @@ B<Example:>
      }
   }
   END
-  
+
 
 This is a static method and so should either be imported or invoked as:
 
@@ -1004,18 +1004,18 @@ B<Example:>
 
 
     my $dfa = fromExpr                                                            # Construct DFA
-  
+
      (zeroOrMore(sequence('a'..'c')),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
       except('b'..'d')
      );
-  
+
     ok  $dfa->parser->accepts(qw(a b c a ));
     ok !$dfa->parser->accepts(qw(a b c a b));
     ok !$dfa->parser->accepts(qw(a b c a c));
     ok !$dfa->parser->accepts(qw(a c c a b c));
-  
-  
+
+
     ok $dfa->print(q(Test)) eq <<END;                                             # Print renumbered DFA
   Test
      State  Final  Symbol  Target  Final
@@ -1023,7 +1023,7 @@ B<Example:>
   2      1      1  b            2
   3      2         c            0
   END
-  
+
 
 This is a static method and so should either be imported or invoked as:
 
@@ -1043,30 +1043,30 @@ B<Example:>
     my $dfa = fromExpr                                                            # Construct DFA
      ("a",
       oneOrMore(choice(qw(b c))),
-  
+
       optional("d"),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
       "e"
      );
     is_deeply ['a'..'e'], [$dfa->symbols];                                        # List symbols
-  
+
     my $dfa = fromExpr                                                            # Construct DFA
      (element("a"),
       oneOrMore(choice(element("b"), element("c"))),
-  
+
       optional(element("d")),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
       element("e")
      );
     my $parser = $dfa->parser;                                                    # New parser
-  
+
     eval { $parser->accept($_) } for qw(a b a);                                   # Try to parse a b a
-  
+
     is_deeply [$parser->next],     [qw(b c d e)];                                 # Next acceptable symbol
     is_deeply  $parser->processed, [qw(a b)];                                     # Symbols processed
-  
+
     ok !$parser->final;                                                           # Not in a final state
-  
+
     ok $dfa->dumpAsJson eq <<END, q(dumpAsJson);                                  # Dump as json
   {
      "finalStates" : {
@@ -1096,7 +1096,7 @@ B<Example:>
      }
   }
   END
-  
+
 
 This is a static method and so should either be imported or invoked as:
 
@@ -1114,18 +1114,18 @@ B<Example:>
 
 
     my $dfa = fromExpr                                                            # Construct DFA
-  
+
      (zeroOrMore(sequence('a'..'c')),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
       except('b'..'d')
      );
-  
+
     ok  $dfa->parser->accepts(qw(a b c a ));
     ok !$dfa->parser->accepts(qw(a b c a b));
     ok !$dfa->parser->accepts(qw(a b c a c));
     ok !$dfa->parser->accepts(qw(a c c a b c));
-  
-  
+
+
     ok $dfa->print(q(Test)) eq <<END;                                             # Print renumbered DFA
   Test
      State  Final  Symbol  Target  Final
@@ -1133,7 +1133,7 @@ B<Example:>
   2      1      1  b            2
   3      2         c            0
   END
-  
+
 
 This is a static method and so should either be imported or invoked as:
 
@@ -1152,31 +1152,31 @@ B<Example:>
 
     my $dfa = fromExpr                                                            # Construct DFA
      ("a",
-  
+
       oneOrMore(choice(qw(b c))),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
       optional("d"),
       "e"
      );
     is_deeply ['a'..'e'], [$dfa->symbols];                                        # List symbols
-  
+
     my $dfa = fromExpr                                                            # Construct DFA
      (element("a"),
-  
+
       oneOrMore(choice(element("b"), element("c"))),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
       optional(element("d")),
       element("e")
      );
     my $parser = $dfa->parser;                                                    # New parser
-  
+
     eval { $parser->accept($_) } for qw(a b a);                                   # Try to parse a b a
-  
+
     is_deeply [$parser->next],     [qw(b c d e)];                                 # Next acceptable symbol
     is_deeply  $parser->processed, [qw(a b)];                                     # Symbols processed
-  
+
     ok !$parser->final;                                                           # Not in a final state
-  
+
     ok $dfa->dumpAsJson eq <<END, q(dumpAsJson);                                  # Dump as json
   {
      "finalStates" : {
@@ -1206,7 +1206,7 @@ B<Example:>
      }
   }
   END
-  
+
 
 This is a static method and so should either be imported or invoked as:
 
@@ -1225,31 +1225,31 @@ B<Example:>
 
     my $dfa = fromExpr                                                            # Construct DFA
      ("a",
-  
+
       oneOrMore(choice(qw(b c))),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
       optional("d"),
       "e"
      );
     is_deeply ['a'..'e'], [$dfa->symbols];                                        # List symbols
-  
+
     my $dfa = fromExpr                                                            # Construct DFA
      (element("a"),
-  
+
       oneOrMore(choice(element("b"), element("c"))),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
       optional(element("d")),
       element("e")
      );
     my $parser = $dfa->parser;                                                    # New parser
-  
+
     eval { $parser->accept($_) } for qw(a b a);                                   # Try to parse a b a
-  
+
     is_deeply [$parser->next],     [qw(b c d e)];                                 # Next acceptable symbol
     is_deeply  $parser->processed, [qw(a b)];                                     # Symbols processed
-  
+
     ok !$parser->final;                                                           # Not in a final state
-  
+
     ok $dfa->dumpAsJson eq <<END, q(dumpAsJson);                                  # Dump as json
   {
      "finalStates" : {
@@ -1279,7 +1279,7 @@ B<Example:>
      }
   }
   END
-  
+
 
 This is a static method and so should either be imported or invoked as:
 
@@ -1298,17 +1298,17 @@ B<Example:>
 
     my $dfa = fromExpr                                                            # Construct DFA
      (zeroOrMore(sequence('a'..'c')),
-  
+
       except('b'..'d')  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
      );
-  
+
     ok  $dfa->parser->accepts(qw(a b c a ));
     ok !$dfa->parser->accepts(qw(a b c a b));
     ok !$dfa->parser->accepts(qw(a b c a c));
     ok !$dfa->parser->accepts(qw(a c c a b c));
-  
-  
+
+
     ok $dfa->print(q(Test)) eq <<END;                                             # Print renumbered DFA
   Test
      State  Final  Symbol  Target  Final
@@ -1316,7 +1316,7 @@ B<Example:>
   2      1      1  b            2
   3      2         c            0
   END
-  
+
 
 This is a static method and so should either be imported or invoked as:
 
@@ -1333,7 +1333,7 @@ Create a DFA parser from a regular B<@expression>.
 B<Example:>
 
 
-  
+
     my $dfa = fromExpr                                                            # Construct DFA  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
      ("a",
@@ -1342,8 +1342,8 @@ B<Example:>
       "e"
      );
     is_deeply ['a'..'e'], [$dfa->symbols];                                        # List symbols
-  
-  
+
+
     my $dfa = fromExpr                                                            # Construct DFA  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
      (element("a"),
@@ -1352,14 +1352,14 @@ B<Example:>
       element("e")
      );
     my $parser = $dfa->parser;                                                    # New parser
-  
+
     eval { $parser->accept($_) } for qw(a b a);                                   # Try to parse a b a
-  
+
     is_deeply [$parser->next],     [qw(b c d e)];                                 # Next acceptable symbol
     is_deeply  $parser->processed, [qw(a b)];                                     # Symbols processed
-  
+
     ok !$parser->final;                                                           # Not in a final state
-  
+
     ok $dfa->dumpAsJson eq <<END, q(dumpAsJson);                                  # Dump as json
   {
      "finalStates" : {
@@ -1389,7 +1389,7 @@ B<Example:>
      }
   }
   END
-  
+
 
 This is a static method and so should either be imported or invoked as:
 
@@ -1422,14 +1422,14 @@ B<Example:>
      (zeroOrMore(sequence('a'..'c')),
       except('b'..'d')
      );
-  
+
     ok  $dfa->parser->accepts(qw(a b c a ));
     ok !$dfa->parser->accepts(qw(a b c a b));
     ok !$dfa->parser->accepts(qw(a b c a c));
     ok !$dfa->parser->accepts(qw(a c c a b c));
-  
-  
-  
+
+
+
     ok $dfa->print(q(Test)) eq <<END;                                             # Print renumbered DFA  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
   Test
@@ -1438,7 +1438,7 @@ B<Example:>
   2      1      1  b            2
   3      2         c            0
   END
-  
+
 
 =head2 symbols($dfa)
 
@@ -1456,10 +1456,10 @@ B<Example:>
       optional("d"),
       "e"
      );
-  
+
     is_deeply ['a'..'e'], [$dfa->symbols];                                        # List symbols  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
-  
+
 
 =head2 parser($dfa, $observer)
 
@@ -1479,32 +1479,32 @@ B<Example:>
       "e"
      );
     is_deeply ['a'..'e'], [$dfa->symbols];                                        # List symbols
-  
+
     my $dfa = fromExpr                                                            # Construct DFA
      (element("a"),
       oneOrMore(choice(element("b"), element("c"))),
       optional(element("d")),
       element("e")
      );
-  
+
     my $parser = $dfa->parser;                                                    # New parser  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
-  
-  
+
+
     eval { $parser->accept($_) } for qw(a b a);                                   # Try to parse a b a  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
-  
-  
+
+
     is_deeply [$parser->next],     [qw(b c d e)];                                 # Next acceptable symbol  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
-  
+
     is_deeply  $parser->processed, [qw(a b)];                                     # Symbols processed  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
-  
-  
+
+
     ok !$parser->final;                                                           # Not in a final state  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
-  
+
     ok $dfa->dumpAsJson eq <<END, q(dumpAsJson);                                  # Dump as json
   {
      "finalStates" : {
@@ -1534,7 +1534,7 @@ B<Example:>
      }
   }
   END
-  
+
 
 =head2 dumpAsJson($dfa)
 
@@ -1553,7 +1553,7 @@ B<Example:>
       "e"
      );
     is_deeply ['a'..'e'], [$dfa->symbols];                                        # List symbols
-  
+
 
 =head2 printAsExpr($dfa)
 
@@ -1565,26 +1565,26 @@ Print a B<$dfa> as an expression.
 B<Example:>
 
 
-  if (1)                                                                            
+  if (1)
    {my $e = q/element(q(a)), zeroOrMore(choice(element(q(b)), element(q(c)))), element(q(d))/;
     my $d = eval qq/fromExpr($e)/;
     confess $@ if $@;
-  
-  
+
+
     my $E = $d->printAsExpr;  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
     ok $e eq $E;
-  
+
     my $R = $d->printAsRe;
     ok $R eq q(a (b | c)* d);
-  
+
     my $D = parseDtdElement(q(a, (b | c)*, d));
-  
+
     my $S = $D->printAsExpr;  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
     ok $e eq $S;
    }
-  
+
 
 =head2 printAsRe($dfa)
 
@@ -1596,24 +1596,24 @@ Print a B<$dfa> as a regular expression.
 B<Example:>
 
 
-  if (1)                                                                            
+  if (1)
    {my $e = q/element(q(a)), zeroOrMore(choice(element(q(b)), element(q(c)))), element(q(d))/;
     my $d = eval qq/fromExpr($e)/;
     confess $@ if $@;
-  
+
     my $E = $d->printAsExpr;
     ok $e eq $E;
-  
-  
+
+
     my $R = $d->printAsRe;  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
     ok $R eq q(a (b | c)* d);
-  
+
     my $D = parseDtdElement(q(a, (b | c)*, d));
     my $S = $D->printAsExpr;
     ok $e eq $S;
    }
-  
+
 
 =head2 parseDtdElementAST($string)
 
@@ -1625,8 +1625,8 @@ Convert the Dtd Element definition in B<$string> to a parse tree.
 B<Example:>
 
 
-  if (1)                                                                          
-  
+  if (1)
+
    {is_deeply unbless(parseDtdElementAST(q(a, (b | c)*, d))),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
      ["sequence",
@@ -1637,7 +1637,7 @@ B<Example:>
        ["element", "d"],
      ];
    }
-  
+
 
 =head2 parseDtdElement($string)
 
@@ -1649,24 +1649,24 @@ Convert the L<Xml|https://en.wikipedia.org/wiki/XML> <>DTD> Element definition i
 B<Example:>
 
 
-  if (1)                                                                            
+  if (1)
    {my $e = q/element(q(a)), zeroOrMore(choice(element(q(b)), element(q(c)))), element(q(d))/;
     my $d = eval qq/fromExpr($e)/;
     confess $@ if $@;
-  
+
     my $E = $d->printAsExpr;
     ok $e eq $E;
-  
+
     my $R = $d->printAsRe;
     ok $R eq q(a (b | c)* d);
-  
-  
+
+
     my $D = parseDtdElement(q(a, (b | c)*, d));  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
     my $S = $D->printAsExpr;
     ok $e eq $S;
    }
-  
+
 
 =head1 Paths
 
@@ -1682,14 +1682,14 @@ Find a set of paths that reach every state in the DFA with each path terminating
 B<Example:>
 
 
-  if (1)                                                                           
+  if (1)
    {my $dfa = fromExpr
      (zeroOrMore("a"),
        oneOrMore("b"),
         optional("c"),
                  "d"
      );
-  
+
     ok !$dfa->parser->accepts(qw());
     ok !$dfa->parser->accepts(qw(a));
     ok !$dfa->parser->accepts(qw(b));
@@ -1699,8 +1699,8 @@ B<Example:>
     ok  $dfa->parser->accepts(qw(b d));
     ok !$dfa->parser->accepts(qw(b a));
     ok  $dfa->parser->accepts(qw(b b d));
-  
-  
+
+
     is_deeply shortPaths    ($dfa), { "b c d" => ["b", "c", "d"], "b d" => ["b", "d"] };  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
     is_deeply longPaths($dfa),
@@ -1713,7 +1713,7 @@ B<Example:>
     "b c d"     => ["b", "c", "d"],
     "b d"       => ["b", "d"]};
    }
-  
+
 
 =head2 longPaths($dfa)
 
@@ -1725,14 +1725,14 @@ Find a set of paths that traverse each transition in the DFA with each path term
 B<Example:>
 
 
-  if (1)                                                                           
+  if (1)
    {my $dfa = fromExpr
      (zeroOrMore("a"),
        oneOrMore("b"),
         optional("c"),
                  "d"
      );
-  
+
     ok !$dfa->parser->accepts(qw());
     ok !$dfa->parser->accepts(qw(a));
     ok !$dfa->parser->accepts(qw(b));
@@ -1742,9 +1742,9 @@ B<Example:>
     ok  $dfa->parser->accepts(qw(b d));
     ok !$dfa->parser->accepts(qw(b a));
     ok  $dfa->parser->accepts(qw(b b d));
-  
+
     is_deeply shortPaths    ($dfa), { "b c d" => ["b", "c", "d"], "b d" => ["b", "d"] };
-  
+
     is_deeply longPaths($dfa),  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
    {"a b b c d" => ["a", "b", "b", "c", "d"],
@@ -1756,7 +1756,7 @@ B<Example:>
     "b c d"     => ["b", "c", "d"],
     "b d"       => ["b", "d"]};
    }
-  
+
 
 =head2 loops($dfa)
 
@@ -1768,13 +1768,13 @@ Find the non repeating loops from each state.
 B<Example:>
 
 
-  if (1)                                                                          
+  if (1)
    {my $d = fromExpr choice
       oneOrMore "a",
         oneOrMore "b",
           oneOrMore "c",
             oneOrMore "d";
-  
+
     is_deeply $d->print("(a(b(c(d)+)+)+)+"), <<END;
   (a(b(c(d)+)+)+)+
      State  Final  Symbol  Target  Final
@@ -1787,28 +1787,28 @@ B<Example:>
   7      3         b            4
   8      4         c            1
   END
-  
+
     ok !$d->parser->accepts(qw());
     ok !$d->parser->accepts(qw(a b c));
     ok  $d->parser->accepts(qw(a b c d));
     ok  $d->parser->accepts(qw(a b c d b c d d));
     ok !$d->parser->accepts(qw(a b c b d c d d));
     ok !$d->parser->accepts(qw(a b c d a));
-  
-  
+
+
     is_deeply $d->loops, {  # 𝗘𝘅𝗮𝗺𝗽𝗹𝗲
 
     1 => [["d", "a", "b", "c"], ["d", "b", "c"], ["d", "c"]],
     2 => [["a" .. "d"],         ["b", "c", "d"], ["c", "d"], ["d"]],
     3 => [["b", "c", "d", "a"]],
     4 => [["c", "d", "a", "b"], ["c", "d", "b"]]};
-  
+
     is_deeply shortPaths($d), {"a b c d" => ["a" .. "d"]};
     is_deeply longPaths ($d), { "a b c d" => ["a" .. "d"], "a b c d d" => ["a" .. "d", "d"] };
-  
+
     #say STDERR $d->printAsExpr;
    }
-  
+
 
 =head1 Parser methods
 
@@ -1832,14 +1832,14 @@ B<Example:>
       element("e")
      );
     my $parser = $dfa->parser;                                                    # New parser
-  
+
     eval { $parser->accept($_) } for qw(a b a);                                   # Try to parse a b a
-  
+
     is_deeply [$parser->next],     [qw(b c d e)];                                 # Next acceptable symbol
     is_deeply  $parser->processed, [qw(a b)];                                     # Symbols processed
-  
+
     ok !$parser->final;                                                           # Not in a final state
-  
+
     ok $dfa->dumpAsJson eq <<END, q(dumpAsJson);                                  # Dump as json
   {
      "finalStates" : {
@@ -1869,18 +1869,18 @@ B<Example:>
      }
   }
   END
-  
+
     my $dfa = fromExpr                                                            # Construct DFA
      (zeroOrMore(sequence('a'..'c')),
       except('b'..'d')
      );
-  
+
     ok  $dfa->parser->accepts(qw(a b c a ));
     ok !$dfa->parser->accepts(qw(a b c a b));
     ok !$dfa->parser->accepts(qw(a b c a c));
     ok !$dfa->parser->accepts(qw(a c c a b c));
-  
-  
+
+
     ok $dfa->print(q(Test)) eq <<END;                                             # Print renumbered DFA
   Test
      State  Final  Symbol  Target  Final
@@ -1888,7 +1888,7 @@ B<Example:>
   2      1      1  b            2
   3      2         c            0
   END
-  
+
 
 =head2 Data::DFA::Parser::final($parser)
 
@@ -1904,13 +1904,13 @@ B<Example:>
      (zeroOrMore(sequence('a'..'c')),
       except('b'..'d')
      );
-  
+
     ok  $dfa->parser->accepts(qw(a b c a ));
     ok !$dfa->parser->accepts(qw(a b c a b));
     ok !$dfa->parser->accepts(qw(a b c a c));
     ok !$dfa->parser->accepts(qw(a c c a b c));
-  
-  
+
+
     ok $dfa->print(q(Test)) eq <<END;                                             # Print renumbered DFA
   Test
      State  Final  Symbol  Target  Final
@@ -1918,7 +1918,7 @@ B<Example:>
   2      1      1  b            2
   3      2         c            0
   END
-  
+
 
 =head2 Data::DFA::Parser::next($parser)
 
@@ -1937,14 +1937,14 @@ B<Example:>
       element("e")
      );
     my $parser = $dfa->parser;                                                    # New parser
-  
+
     eval { $parser->accept($_) } for qw(a b a);                                   # Try to parse a b a
-  
+
     is_deeply [$parser->next],     [qw(b c d e)];                                 # Next acceptable symbol
     is_deeply  $parser->processed, [qw(a b)];                                     # Symbols processed
-  
+
     ok !$parser->final;                                                           # Not in a final state
-  
+
     ok $dfa->dumpAsJson eq <<END, q(dumpAsJson);                                  # Dump as json
   {
      "finalStates" : {
@@ -1974,7 +1974,7 @@ B<Example:>
      }
   }
   END
-  
+
 
 =head2 Data::DFA::Parser::accepts($parser, @symbols)
 
@@ -1994,7 +1994,7 @@ B<Example:>
       "e"
      );
     is_deeply ['a'..'e'], [$dfa->symbols];                                        # List symbols
-  
+
     my $dfa = fromExpr                                                            # Construct DFA
      (element("a"),
       oneOrMore(choice(element("b"), element("c"))),
@@ -2002,14 +2002,14 @@ B<Example:>
       element("e")
      );
     my $parser = $dfa->parser;                                                    # New parser
-  
+
     eval { $parser->accept($_) } for qw(a b a);                                   # Try to parse a b a
-  
+
     is_deeply [$parser->next],     [qw(b c d e)];                                 # Next acceptable symbol
     is_deeply  $parser->processed, [qw(a b)];                                     # Symbols processed
-  
+
     ok !$parser->final;                                                           # Not in a final state
-  
+
     ok $dfa->dumpAsJson eq <<END, q(dumpAsJson);                                  # Dump as json
   {
      "finalStates" : {
@@ -2039,7 +2039,7 @@ B<Example:>
      }
   }
   END
-  
+
 
 =head1 Data Structures
 
@@ -2226,13 +2226,13 @@ B<Example:>
      (zeroOrMore(sequence('a'..'c')),
       except('b'..'d')
      );
-  
+
     ok  $dfa->parser->accepts(qw(a b c a ));
     ok !$dfa->parser->accepts(qw(a b c a b));
     ok !$dfa->parser->accepts(qw(a b c a c));
     ok !$dfa->parser->accepts(qw(a c c a b c));
-  
-  
+
+
     ok $dfa->print(q(Test)) eq <<END;                                             # Print renumbered DFA
   Test
      State  Final  Symbol  Target  Final
@@ -2240,7 +2240,7 @@ B<Example:>
   2      1      1  b            2
   3      2         c            0
   END
-  
+
 
 =head2 printFinal($final)
 
